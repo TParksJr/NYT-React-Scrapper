@@ -3,8 +3,6 @@ import './Search.css';
 import axios from 'axios';
 import Results from '../Results';
 
-require("dotenv").config(); //not working for some reason, need to use this to hide key
-
 class Search extends Component {
     constructor(props) {
         super(props);
@@ -43,11 +41,7 @@ class Search extends Component {
             this.setState({
                 results: newResults
             });
-            console.log(this.state.results);
-        });
-
-
-        
+        });        
     };
 
     handleClear = () => {
@@ -57,10 +51,24 @@ class Search extends Component {
     };
 
     handleSave = event => {
-        console.log(event.target.value);
+        let articleId = event.target.value;
+        let newArr = [];
 
-        
-    }
+        for (let i = 0; i < this.state.results.length; i++) {
+            if (this.state.results[i]._id === articleId) {
+                newArr.push(this.state.results[i]);
+            };
+        };
+
+        let newObj = newArr[0];
+
+        // let selected = this.state.results.filter(article => article._id === articleId);
+        //console.log(selected);
+
+        axios.post("/save/" + articleId, newObj).then(res => {
+            console.log(res);
+        });
+    };
 
     render() {
         return (

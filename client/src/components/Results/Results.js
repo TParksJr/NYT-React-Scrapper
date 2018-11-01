@@ -16,7 +16,7 @@ const Results = props => (
                         <p>Publication date: {result.pub_date}</p>
                         <p>Word Count: {result.word_count}</p>
                         <p>Score: {result.score}</p>
-                        <p>URL: <a href={result.web_url}>{result.web_url}</a></p>
+                        <p>URL: <a href={result.web_url} target="_blank">{result.web_url}</a></p>
                         <button className="btn btn-primary btn-block" value={result._id} onClick={props.handleSave}><i className="fa fa-save"></i> Save article</button>
                     </div>
                 ))}

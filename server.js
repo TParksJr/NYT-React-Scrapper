@@ -1,17 +1,51 @@
-const express = require("express");
-const path = require("path");
-const PORT = process.env.PORT || 3001;
-const app = express();
+require("dotenv").config();
+var express = require("express");
+var PORT = process.env.PORT || 3001;
+var app = express();
+var bodyParser = require("body-parser");
+var logger = require("morgan");
+var path = require("path");
+var mongoose = require("mongoose")
+var Note = require("./db/models/Note.js");
+var Article = require("./db/models/Article.js");
 
-// Serve up static assets (usually on heroku)
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("client/public"));
+  app.use(express.static("client/build"));
 }
 
-// Send every request to the React app
-// Define any API routes before this runs
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+app.use(logger("dev"));
+
+mongoose.connect("mongodb://localhost/nytdb", { useNewUrlParser: true });
+var db = mongoose.connection;
+
+db.on("error", function(error) {
+  console.log("Mongoose Error: ", error);
+});
+
+db.once("open", function() {
+  console.log("Mongoose connection successful.");
+});
+
+app.post("/save/:id", function(req, res) {
+  var articleId = req.params.id;
+  var content = req.body;
+  var newObj = {
+    headline = content.headline.main,
+    date = content.pub_date,
+    wordCount = content.word_count,
+    score = content.score,
+    url = content.web_url,
+    notes = []
+  }
+
+  Article.create({newObj}).then(newEntry => console.log(newEntry)).catch(err => res.json(err))
+});
+
 app.get("*", function(req, res) {
-  res.sendFile(path.join(__dirname, "./client/public/index.html"));
+  res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
 app.listen(PORT, function() {
