@@ -3,7 +3,6 @@ import "./App.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Search from "./components/Search";
-import Saved from "./components/Saved";
 
 class App extends Component {
   render() {
@@ -11,7 +10,6 @@ class App extends Component {
       <React.Fragment>
         <Header />
         <Search />
-        <Saved />
         <br></br><br></br>
         <Footer />
       </React.Fragment>

@@ -2,13 +2,27 @@ import React, { Component } from 'react';
 import './Search.css';
 import axios from 'axios';
 import Results from '../Results';
+import Saved from '../Saved';
 
 class Search extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            results: []
+            results: [],
+            saved: []
         };
+    };
+
+    componentDidMount() {
+        axios.get("/api/saved").then(res => {
+            let newArr = [];
+            for (let i = 0; i < res.data.length; i++) {
+                newArr.push(res.data[i]);
+            };
+            this.setState({
+                saved: newArr
+            });
+        });
     };
 
     handleSearch = event => {
@@ -19,7 +33,7 @@ class Search extends Component {
         let startDate = document.getElementById("startDate").value;
         let endDate = document.getElementById("endDate").value;
 
-        let apiURL = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=" + "bfcbfaf5c097425db19434c8ccf73135";
+        let apiURL = "https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=bfcbfaf5c097425db19434c8ccf73135";
         if (searchTerm) {
             searchTerm = searchTerm.split(" ").join("");
             apiURL += "&q=" + searchTerm;
@@ -41,7 +55,7 @@ class Search extends Component {
             this.setState({
                 results: newResults
             });
-        });        
+        });
     };
 
     handleClear = () => {
@@ -61,12 +75,35 @@ class Search extends Component {
         };
 
         let newObj = newArr[0];
+        
+        axios.post("/api/save/" + articleId, newObj).then(res => {
+            let newArr = this.state.results;
+            for(let i = 0; i < newArr.length; i++){ 
+                if (newArr[i]._id === articleId) {
+                  newArr.splice(i, 1); 
+                };
+            };
+            let newSaved = this.state.saved;
+            newSaved.unshift(res.data);
+            this.setState({
+                results: newArr,
+                saved: newSaved
+            });
+        });
+    };
 
-        // let selected = this.state.results.filter(article => article._id === articleId);
-        //console.log(selected);
-
-        axios.post("/save/" + articleId, newObj).then(res => {
-            console.log(res);
+    handleDelete = event => {
+        let articleId = event.target.value;
+        axios.put("/api/delete/" + articleId).then(res => {
+            let newArr = this.state.saved;
+            for (let i = 0; i < newArr.length; i++) {
+                if (newArr[i]._id === articleId) {
+                    newArr.splice(i, 1);
+                };
+            };
+            this.setState({
+                saved: newArr
+            });
         });
     };
 
@@ -82,11 +119,11 @@ class Search extends Component {
                     <div className="panel-body">
                         <form>
                             <div className="form-group">
-                                <label for="searchTerm">Search term: </label>
+                                <label htmlFor="searchTerm">Search term: </label>
                                 <input type="text" className="form-control" name="searchTerm" id="searchTerm"></input>
                             </div>
                             <div className="form-group">
-                                <label for="numRecords">Number of records to retrieve: </label>
+                                <label htmlFor="numRecords">Number of records to retrieve: </label>
                                 <select className="form-control" name="numRecords" id="numRecords">
                                     <option value="1">1</option>
                                     <option value="5" selected>5</option>
@@ -94,11 +131,11 @@ class Search extends Component {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label for="startDate">Start date (optional): </label>
+                                <label htmlFor="startDate">Start date (optional): </label>
                                 <input type="date" className="form-control" name="startDate" id="startDate"></input>
                             </div>
                             <div className="form-group">
-                                <label for="endDate">End date (optional): </label>
+                                <label htmlFor="endDate">End date (optional): </label>
                                 <input type="date" className="form-control" name="endDate" id="endDate"></input>
                             </div>
                         </form>
@@ -108,6 +145,7 @@ class Search extends Component {
                     </div>
                 </div>
                 <Results results={this.state.results} handleSave={this.handleSave}/>
+                <Saved articles={this.state.saved} handleDelete={this.handleDelete}/>
             </div>
         );
     };

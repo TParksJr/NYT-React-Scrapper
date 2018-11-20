@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 
 app.use(logger("dev"));
 
-mongoose.connect("mongodb://localhost/nytdb", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost:27017/nytdb", { useNewUrlParser: true });
 var db = mongoose.connection;
 
 db.on("error", function(error) {
@@ -29,22 +29,28 @@ db.once("open", function() {
   console.log("Mongoose connection successful.");
 });
 
-app.post("/save/:id", function(req, res) {
-  var articleId = req.params.id;
+app.post("/api/save/:id", function(req, res) {
   var content = req.body;
   var newObj = {
-    headline = content.headline.main,
-    date = content.pub_date,
-    wordCount = content.word_count,
-    score = content.score,
-    url = content.web_url,
-    notes = []
+    headline: content.headline.main,
+    date: content.pub_date,
+    wordCount: content.word_count,
+    score: content.score,
+    url: content.web_url,
+    notes: []
   }
-
-  Article.create({newObj}).then(newEntry => console.log(newEntry)).catch(err => res.json(err))
+  Article.create(newObj).then(newEntry => res.json(newEntry)).catch(err => res.json(err));
 });
 
-app.get("*", function(req, res) {
+app.get("/api/saved", function(req, res) {
+  Article.find({}).then(results => res.json(results)).catch(err => res.json(err));
+});
+
+app.put("/api/delete/:id", function(req, res) {
+  Article.findByIdAndRemove(req.params.id).then(deletedEntry => res.json(deletedEntry)).catch(err => res.json(err));
+});
+
+app.get("/", function(req, res) {
   res.sendFile(path.join(__dirname, "./client/build/index.html"));
 });
 
