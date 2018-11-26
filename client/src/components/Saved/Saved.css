@@ -9,6 +9,12 @@
     margin: 5px;
     box-shadow: 3px 3px 3px #2f4f4f;
 }
-.deleteButton {
+.viewButton,
+.noteButton {
+    display: inline-block;
+    width: 49%;
     box-shadow: 2px 2px 2px #2f4f4f;
+}
+.deleteButton {
+    width: 99%;
 }

@@ -3,13 +3,15 @@ import './Search.css';
 import axios from 'axios';
 import Results from '../Results';
 import Saved from '../Saved';
+import tingle from 'tingle.js';
 
 class Search extends Component {
     constructor(props) {
         super(props);
         this.state = {
             results: [],
-            saved: []
+            saved: [],
+            selected: "No selection yet"
         };
     };
 
@@ -75,12 +77,12 @@ class Search extends Component {
         };
 
         let newObj = newArr[0];
-        
+
         axios.post("/api/save/" + articleId, newObj).then(res => {
             let newArr = this.state.results;
-            for(let i = 0; i < newArr.length; i++){ 
+            for (let i = 0; i < newArr.length; i++) {
                 if (newArr[i]._id === articleId) {
-                  newArr.splice(i, 1); 
+                    newArr.splice(i, 1);
                 };
             };
             let newSaved = this.state.saved;
@@ -103,6 +105,81 @@ class Search extends Component {
             };
             this.setState({
                 saved: newArr
+            });
+        });
+    };
+
+    handleNote = event => {
+        let articleId = event.target.value;
+        this.setState({
+            selected: articleId
+        }, () => {
+            var modal = new tingle.modal({
+                footer: true,
+                stickyFooter: false,
+                closeMethods: ['overlay', 'button', 'escape'],
+                closeLabel: "Close",
+                cssClass: ['custom-class-1', 'custom-class-2'],
+                onOpen: function() {
+                },
+                onClose: function() {
+                },
+                beforeClose: function() {
+                    return true;
+                }
+            });
+            modal.setContent('<form><input type="text" id="modalInput" placeholder="Add your note here..."></form>');
+            modal.addFooterBtn('Submit', 'tingle-btn tingle-btn--primary', () => {
+                this.handleSubmit();
+                modal.close();
+            });
+            modal.addFooterBtn('Exit', 'tingle-btn tingle-btn--danger', () => {
+                modal.close();
+            });
+            modal.open();
+        });
+    };
+
+    handleSubmit = () => {
+        let newNote = {
+            article: this.state.selected,
+            body: document.getElementById("modalInput").value
+        };
+        axios.put("/api/note/" + this.state.selected, newNote).then(res => {
+            console.log(res);
+        });
+    };
+
+    handleView = event => {
+        let articleId = event.target.value;
+        this.setState({
+            selected: articleId
+        }, () => {
+            axios.get("/api/notes/" + articleId).then(res => {
+                let newArr = [];
+                for (let i = 0; i < res.data.length; i++) {
+                    newArr.push("<li>" + res.data[i].body + "</li>");
+                };
+                let newString = newArr.join('');
+                var modal = new tingle.modal({
+                    footer: true,
+                    stickyFooter: false,
+                    closeMethods: ['overlay', 'button', 'escape'],
+                    closeLabel: "Close",
+                    cssClass: ['custom-class-1', 'custom-class-2'],
+                    onOpen: function() {
+                    },
+                    onClose: function() {
+                    },
+                    beforeClose: function() {
+                        return true;
+                    }
+                });
+                modal.setContent('<ul>' + newString + '</ul>');
+                modal.addFooterBtn('Exit', 'tingle-btn tingle-btn--danger', () => {
+                    modal.close();
+                });
+                modal.open();
             });
         });
     };
@@ -144,8 +221,8 @@ class Search extends Component {
                         <button type="button" className="btn btn-danger" id="clear" onClick={this.handleClear}><span className="fa fa-trash"></span> Clear Results</button>
                     </div>
                 </div>
-                <Results results={this.state.results} handleSave={this.handleSave}/>
-                <Saved articles={this.state.saved} handleDelete={this.handleDelete}/>
+                <Results results={this.state.results} handleSave={this.handleSave} />
+                <Saved articles={this.state.saved} handleDelete={this.handleDelete} handleNote={this.handleNote} handleView={this.handleView}/>
             </div>
         );
     };

@@ -17,7 +17,10 @@ const Saved = props => (
                         <p>Word Count: {article.wordCount}</p>
                         <p>Score: {article.score}</p>
                         <p>URL: <a href={article.url} target="_blank">{article.url}</a></p>
-                        <button className="btn btn-danger btn-block deleteButton" value={article._id} onClick={props.handleDelete}><i className="fa fa-trash-alt"></i> Delete article</button>
+                        <button type="button" className="btn btn-warning btn-block noteButton" value={article._id} onClick={props.handleNote}><i className="fa fa-comment"></i> Leave Note</button>
+                        <span> </span>
+                        <button type="button" className="btn btn-primary btn-block viewButton" value={article._id} onClick={props.handleView}><i className="fa fa-comments"></i> View Notes</button>
+                        <button type="button" className="btn btn-danger btn-block deleteButton" value={article._id} onClick={props.handleDelete}><i className="fa fa-trash"></i> Delete article</button>
                     </div>
                 )}
             </div>

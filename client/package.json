@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "proxy": {
-    "/api/*":  {
+    "/api/*": {
       "target": "http://localhost:3001"
     }
   },
   "dependencies": {
+    "jingle": "^3.0.3",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-scripts": "1.0.14",
-    "webpack": "^4.23.1"
+    "tingle.js": "^0.13.2",
+    "webpack": "^3.11.0"
   },
   "scripts": {
     "start": "react-scripts start",
