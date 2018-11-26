@@ -16,7 +16,12 @@ app.use(bodyParser.json());
 
 app.use(logger("dev"));
 
-mongoose.connect("mongodb://localhost:27017/nytdb", { useNewUrlParser: true });
+if (process.env.NODE_ENV === "production") {
+  mongoose.connect("mongodb://heroku_nvprgdc5:76n07geq0hpqcc9elpfrmto1gr@ds029847.mlab.com:29847/heroku_nvprgdc5", { useNewUrlParser: true });
+} else {
+  mongoose.connect("mongodb://localhost:27017/nytdb", { useNewUrlParser: true });
+};
+
 var db = mongoose.connection;
 
 db.on("error", function(error) {
